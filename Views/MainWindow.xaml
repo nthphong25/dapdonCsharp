@@ -3,6 +3,44 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="EPC Viewer" Height="200" Width="400">
     <Grid>
-        
+        <StackPanel>
+            <Button Content="Clear List" 
+        Click="ClearButton_Click"
+        Width="85" Height="25" 
+        Margin="5"
+        HorizontalAlignment="Left"
+        HorizontalContentAlignment="Center"
+        VerticalContentAlignment="Center">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Foreground" Value="White"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="Red" 
+                                BorderBrush="Red"
+                                BorderThickness="2"
+                                CornerRadius="3" 
+                                Padding="1">
+                                        <ContentPresenter HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+            <DataGrid ItemsSource="{Binding EpcMoList}" AutoGenerateColumns="False"
+                      Margin="5">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="EPC" Binding="{Binding EPC}" />
+                    <DataGridTextColumn Header="MO Number" Binding="{Binding MoNo}" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </StackPanel>
+
+
     </Grid>
 </Window>

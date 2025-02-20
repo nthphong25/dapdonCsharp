@@ -1,14 +1,28 @@
-﻿using dapdon.ViewModels;
-using System.Windows;
+﻿using System.Windows;
+using dapdon.ViewModels;
+using dapdon.Controller;
 
-namespace dapdon.Views  // Đúng với vị trí thư mục
+namespace dapdon.Views
 {
     public partial class MainWindow : Window
-    {     
-        public MainWindow(MainContentViewModel mainContentViewModel)
+    {
+        private MainContentViewModel _viewModel;
+
+        public MainWindow()
         {
             InitializeComponent();
-            DataContext = mainContentViewModel;
+            _viewModel = new MainContentViewModel();
+            DataContext = _viewModel;
+
+            DeviceController.OnEpcReceived += epc =>
+            {
+                Dispatcher.Invoke(() => _viewModel.LoadMoNoByEpc(epc));
+            };
+        }
+
+        private void ClearButton_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.ClearList();
         }
     }
 }
