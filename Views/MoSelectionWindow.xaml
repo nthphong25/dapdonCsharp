@@ -1,0 +1,15 @@
+﻿<Window x:Class="dapdon.Views.MoSelectionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Chọn MO" Height="150" Width="300" WindowStartupLocation="CenterOwner">
+    <Grid>
+        <StackPanel Margin="10">
+            <TextBlock Text="Chọn MO Number:" FontWeight="Bold"/>
+            <ComboBox x:Name="MoNoComboBox" 
+          ItemsSource="{Binding MoNoList}" 
+          SelectedItem="{Binding SelectedMoNo, Mode=TwoWay}" 
+          Margin="5"/>
+            <Button Content="OK" Click="ConfirmButton_Click" Width="80" Height="30" HorizontalAlignment="Center"/>
+        </StackPanel>
+    </Grid>
+</Window>

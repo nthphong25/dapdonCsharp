@@ -4,6 +4,8 @@
         Title="EPC Viewer" Height="200" Width="400">
     <Grid>
         <StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="5">
+    
             <Button Content="Clear List" 
         Click="ClearButton_Click"
         Width="85" Height="25" 
@@ -31,9 +33,11 @@
                     </Style>
                 </Button.Style>
             </Button>
-
-            <DataGrid ItemsSource="{Binding EpcMoList}" AutoGenerateColumns="False"
-                      Margin="5">
+                <Button Content="Ch?n MO" 
+                        Click="OpenModal_Click"
+                        Width="84" Height="30"></Button>
+            </StackPanel>
+            <DataGrid ItemsSource="{Binding EpcMoList}" AutoGenerateColumns="False" Margin="5">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="EPC" Binding="{Binding EPC}" />
                     <DataGridTextColumn Header="MO Number" Binding="{Binding MoNo}" />
