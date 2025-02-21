@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using Microsoft.Data.SqlClient;
 
@@ -25,6 +26,8 @@ namespace dapdon.ViewModels
 
     public class MainContentViewModel : INotifyPropertyChanged
     {
+        private readonly HttpClient _httpClient = new HttpClient();
+
         private ObservableCollection<EpcMoModel> _epcMoList = new ObservableCollection<EpcMoModel>();
         public ObservableCollection<EpcMoModel> EpcMoList
         {
@@ -175,11 +178,16 @@ namespace dapdon.ViewModels
 
 
 
-        public void ClearList()
+        public async Task ClearList()
         {
-            EpcMoList.Clear();
-            MoEpcCounts.Clear();
-            EpcCount = 0;
+            var response = await _httpClient.PostAsync("http://localhost:5000/api/device/clear", null);
+            if (response.IsSuccessStatusCode)
+            {
+                EpcMoList.Clear();  // Xóa danh sách EPC trên UI
+                MoEpcCounts.Clear();
+                EpcCount = 0;
+                MoNoList.Clear();
+            }
         }
 
         public void ReloadData()
