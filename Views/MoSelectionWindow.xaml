@@ -1,15 +1,33 @@
 ﻿<Window x:Class="dapdon.Views.MoSelectionWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Chọn MO" Height="150" Width="300" WindowStartupLocation="CenterOwner">
-    <Grid>
-        <StackPanel Margin="10">
-            <TextBlock Text="Chọn MO Number:" FontWeight="Bold"/>
-            <ComboBox x:Name="MoNoComboBox" 
+        Title="Chọn MO" Height="500" Width="700" WindowStartupLocation="CenterOwner">
+    <Grid Margin="0,0,0,2">
+        <StackPanel   Margin="10">
+            <!-- ComboBox để chọn MO Number -->
+            <TextBlock Text="Chọn MO Number:" Margin="0,0,0,5" FontWeight="Bold"/>
+            <ComboBox x:Name="MoComboBox"
           ItemsSource="{Binding MoNoList}" 
           SelectedItem="{Binding SelectedMoNo, Mode=TwoWay}" 
-          Margin="5"/>
-            <Button Content="OK" Click="ConfirmButton_Click" Width="80" Height="30" HorizontalAlignment="Center"/>
+          Width="200"/>
+
+
+
+            <!-- DataGrid hiển thị số lượng EPC của từng MO Number -->
+            <TextBlock Text="Số lượng EPC theo MO:" Margin="0,10,0,5" FontWeight="Bold"/>
+            <DataGrid Width="300" Height="250" HorizontalAlignment="Left" ItemsSource="{Binding MoEpcCounts}" AutoGenerateColumns="False" Margin="5"
+          FontSize="16" 
+          FrozenColumnCount="4"
+          ColumnWidth="*" >
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="MO Number" Binding="{Binding MoNo}" Width="*"/>
+                    <DataGridTextColumn Header="Số lượng EPC" Binding="{Binding EpcCount}" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <!-- Nút xác nhận -->
+            <Button Content="Xác nhận" Click="ConfirmButton_Click" Margin="0,10,0,0" Width="100" HorizontalAlignment="Left"/>
         </StackPanel>
+
     </Grid>
 </Window>

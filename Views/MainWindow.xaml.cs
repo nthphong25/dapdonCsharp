@@ -29,11 +29,7 @@ namespace dapdon.Views
 
         private void OpenModal_Click(object sender, RoutedEventArgs e)
         {
-            // Lấy danh sách MO Number duy nhất
-            var moNumbers = _viewModel.EpcMoList.Select(item => item.MoNo).Distinct().ToList();
-
-            // Mở modal
-            MoSelectionWindow modal = new MoSelectionWindow(moNumbers);
+            MoSelectionWindow modal = new MoSelectionWindow(_viewModel);  // Truyền ViewModel vào Modal
             modal.Owner = this;
 
             if (modal.ShowDialog() == true && !string.IsNullOrEmpty(modal.SelectedMoNo))
@@ -41,6 +37,10 @@ namespace dapdon.Views
                 MessageBox.Show("MO Number đã chọn: " + modal.SelectedMoNo, "Thông báo");
             }
 
+        }
+        public List<string> GetEpclist()
+        {
+            return _viewModel.EpcMoList.Select(item => item.EPC).ToList();
         }
     }
 }
