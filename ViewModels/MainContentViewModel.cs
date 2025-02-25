@@ -15,13 +15,28 @@ namespace dapdon.ViewModels
         public string MoNo { get; set; }
         public string ShoeStyle { get; set; }
         public string MatColor { get; set; }
+        public string MatCode { get; set; }
     }
 
     public class MoEpcCountModel
     {
         public string MoNo { get; set; }
         public int EpcCount { get; set; }
+
+        // Danh sách MO Number hợp lệ cho ComboBox
+        public List<string> MoNoSelectList { get; set; } = new List<string>();
+
+        // MO Number được chọn trong ComboBox
+        public string SelectedMoNo { get; set; }
     }
+
+
+    public class MoNoInRow
+    {
+        public ObservableCollection<string> MoNoSelectList { get; set; } = new ObservableCollection<string>();
+        public string SelectedMoNo { get; set; }  // MoNo được chọn trong ComboBox
+    }
+
 
 
     public class MainContentViewModel : INotifyPropertyChanged
@@ -50,6 +65,18 @@ namespace dapdon.ViewModels
             }
         }
 
+        private ObservableCollection<MoNoInRow> _moNoInRow = new ObservableCollection<MoNoInRow>();
+        public ObservableCollection<MoNoInRow> MoNoSelectInRow
+
+        {
+            get { return _moNoInRow; }
+            set
+            {
+                _moNoInRow = value;
+                OnPropertyChanged();
+            }
+        }
+
 
         private int _epcCount;
         public int EpcCount
@@ -61,6 +88,7 @@ namespace dapdon.ViewModels
                 OnPropertyChanged();
             }
         }
+
         private ObservableCollection<string> _moNoList = new ObservableCollection<string>();
         public ObservableCollection<string> MoNoList
         {
@@ -82,8 +110,7 @@ namespace dapdon.ViewModels
             }
         }
 
-
-
+        public bool MoNoSelectList { get; private set; }
 
         private string _connectionString = "Server=10.30.0.18,1433;Database=DV_DATA_LAKE;User Id=sa;Password=greenland@VN;TrustServerCertificate=True";
 
@@ -95,16 +122,17 @@ namespace dapdon.ViewModels
                 {
                     conn.Open();
                     string query = @"
-        SELECT DISTINCT 
-            a.mo_no, 
-            a.shoestyle_codefactory, 
-            (b.mat_color + ' / ' + b.mat_ecolor) AS mat_color_assemble
-        FROM dv_rfidmatchmst a
-        LEFT JOIN wuerp_vnrd.dbo.ta_productmst b 
-            ON a.mat_code = b.mat_code AND b.isactive = 'Y'
-        LEFT JOIN wuerp_vnrd.dbo.ta_manufacturmst c 
-            ON b.mat_code = c.mat_code AND c.isactive = 'Y'
-        WHERE a.EPC_Code = @epc";
+                        SELECT DISTINCT 
+                            a.mat_code,
+                            a.mo_no, 
+                            a.shoestyle_codefactory, 
+                            (b.mat_color + ' / ' + b.mat_ecolor) AS mat_color_assemble
+                        FROM dv_rfidmatchmst a
+                        LEFT JOIN wuerp_vnrd.dbo.ta_productmst b 
+                            ON a.mat_code = b.mat_code AND b.isactive = 'Y'
+                        LEFT JOIN wuerp_vnrd.dbo.ta_manufacturmst c 
+                            ON b.mat_code = c.mat_code AND c.isactive = 'Y'
+                        WHERE a.EPC_Code = @epc";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
@@ -119,13 +147,14 @@ namespace dapdon.ViewModels
                                 string moNo = reader["mo_no"] as string ?? "";
                                 string shoeStyle = reader["shoestyle_codefactory"] as string ?? "";
                                 string matColor = reader["mat_color_assemble"] as string ?? "";
-
+                                string matCode = reader["mat_code"] as string ?? "";
                                 EpcMoList.Add(new EpcMoModel
                                 {
                                     EPC = epc,
                                     MoNo = moNo,
                                     ShoeStyle = shoeStyle,
                                     MatColor = matColor,
+                                    MatCode = matCode,
                                 });
 
                                 hasData = true;
@@ -140,6 +169,7 @@ namespace dapdon.ViewModels
                                     MoNo = "",       // Để trống thay vì null
                                     ShoeStyle = "",
                                     MatColor = "",
+                                    MatCode = "",
                                 });
                             }
                         }
@@ -158,22 +188,60 @@ namespace dapdon.ViewModels
 
         private void UpdateMoEpcCounts()
         {
-            var groupedData = EpcMoList.GroupBy(e => e.MoNo)
-                                       .Select(g => new MoEpcCountModel
-                                       {
-                                           MoNo = g.Key,
-                                           EpcCount = g.Count()
-                                       }).ToList();
+            var groupedData = EpcMoList
+                .GroupBy(e => e.MoNo)
+                .Select(g => new MoEpcCountModel
+                {
+                    MoNo = g.Key,
+                    EpcCount = g.Count(),
+                    MoNoSelectList = GetAvailableMoNumbers(g.Key) // Lấy danh sách MO hợp lệ
+                })
+                .ToList();
 
             MoEpcCounts.Clear();
-            MoNoList.Clear();  // Xóa danh sách cũ
-
             foreach (var item in groupedData)
             {
                 MoEpcCounts.Add(item);
-                if (!string.IsNullOrEmpty(item.MoNo))
-                    MoNoList.Add(item.MoNo);  // Cập nhật danh sách MO
             }
+        }
+
+
+
+
+        private List<string> GetAvailableMoNumbers(string moNo)
+        {
+            List<string> moNumbers = new List<string>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+                string query = @"
+                SELECT DISTINCT dr.mo_no  
+                    FROM dv_rfidmatchmst dr
+                    WHERE dr.mo_no <> @MoNo 
+
+                    AND EXISTS (
+                        SELECT 1  
+                        FROM dv_rfidmatchmst sub
+                        WHERE sub.mo_no = @MoNo
+                        AND sub.mat_code = dr.mat_code
+                        AND sub.shoestyle_codefactory = dr.shoestyle_codefactory
+                    );";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@MoNo", moNo);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            moNumbers.Add(reader.GetString(0));
+                        }
+                    }
+                }
+            }
+
+            return moNumbers;
         }
 
 
