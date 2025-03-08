@@ -26,18 +26,6 @@ namespace dapdon.Views
         {
             _viewModel.ClearList();
         }
-
-        private void OpenModal_Click(object sender, RoutedEventArgs e)
-        {
-            MoSelectionWindow modal = new MoSelectionWindow(_viewModel);  // Truyền ViewModel vào Modal
-            modal.Owner = this;
-
-            if (modal.ShowDialog() == true && !string.IsNullOrEmpty(modal.SelectedMoNo))
-            {
-                MessageBox.Show("MO Number đã chọn: " + modal.SelectedMoNo, "Thông báo");
-            }
-
-        }
         public List<string> GetEpclist()
         {
             return _viewModel.EpcMoList.Select(item => item.EPC).ToList();

@@ -37,33 +37,7 @@
                         </Style>
                     </Button.Style>
                 </Button>
-                <Button
-                    Width="130"
-                    Height="60"
-                    Margin="50,0,0,0"
-                    Click="OpenModal_Click"
-                    Content="Merge MoNo"
-                    FontSize="15">
-                    <Button.Style>
-                        <Style TargetType="Button">
-                            <Setter Property="Foreground" Value="White" />
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border
-                                            Padding="1"
-                                            Background="#04AA6D"
-                                            BorderBrush="Green"
-                                            BorderThickness="2"
-                                            CornerRadius="3">
-                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                        </Border>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </Button.Style>
-                </Button>
+               
             </StackPanel>
             <TextBlock
                 Margin="10"
@@ -73,7 +47,7 @@
                 Foreground="Black">
                 <Run Text="EPC Scanned: " />
                 <!--  Phần cố định  -->
-                <Run Text="{Binding EpcCount}" />
+                <Run />
                 <!--  Phần động  -->
             </TextBlock>
             <DataGrid

@@ -18,27 +18,6 @@ namespace dapdon.ViewModels
         public string MatCode { get; set; }
     }
 
-    public class MoEpcCountModel
-    {
-        public string MoNo { get; set; }
-        public int EpcCount { get; set; }
-
-        // Danh sách MO Number hợp lệ cho ComboBox
-        public List<string> MoNoSelectList { get; set; } = new List<string>();
-
-        // MO Number được chọn trong ComboBox
-        public string SelectedMoNo { get; set; }
-    }
-
-
-    public class MoNoInRow
-    {
-        public ObservableCollection<string> MoNoSelectList { get; set; } = new ObservableCollection<string>();
-        public string SelectedMoNo { get; set; }  // MoNo được chọn trong ComboBox
-    }
-
-
-
     public class MainContentViewModel : INotifyPropertyChanged
     {
         private readonly HttpClient _httpClient = new HttpClient();
@@ -51,66 +30,9 @@ namespace dapdon.ViewModels
             {
                 _epcMoList = value;
                 OnPropertyChanged();
-                UpdateMoEpcCounts(); // Cập nhật số lượng EPC theo MO
-            }
-        }
-        private ObservableCollection<MoEpcCountModel> _moEpcCounts = new ObservableCollection<MoEpcCountModel>();
-        public ObservableCollection<MoEpcCountModel> MoEpcCounts
-        {
-            get { return _moEpcCounts; }
-            set
-            {
-                _moEpcCounts = value;
-                OnPropertyChanged();
             }
         }
 
-        private ObservableCollection<MoNoInRow> _moNoInRow = new ObservableCollection<MoNoInRow>();
-        public ObservableCollection<MoNoInRow> MoNoSelectInRow
-
-        {
-            get { return _moNoInRow; }
-            set
-            {
-                _moNoInRow = value;
-                OnPropertyChanged();
-            }
-        }
-
-
-        private int _epcCount;
-        public int EpcCount
-        {
-            get { return _epcCount; }
-            set
-            {
-                _epcCount = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private ObservableCollection<string> _moNoList = new ObservableCollection<string>();
-        public ObservableCollection<string> MoNoList
-        {
-            get { return _moNoList; }
-            set
-            {
-                _moNoList = value;
-                OnPropertyChanged();
-            }
-        }
-        private string _selectedMoNo;
-        public string SelectedMoNo
-        {
-            get { return _selectedMoNo; }
-            set
-            {
-                _selectedMoNo = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool MoNoSelectList { get; private set; }
 
         private string _connectionString = "Server=10.30.0.18,1433;Database=DV_DATA_LAKE;User Id=sa;Password=greenland@VN;TrustServerCertificate=True";
 
@@ -181,70 +103,10 @@ namespace dapdon.ViewModels
                 }
             }
 
-            // Cập nhật số lượng EPC theo MO
-            UpdateMoEpcCounts();
-            EpcCount = EpcMoList.Count;
+ 
         }
 
-        private void UpdateMoEpcCounts()
-        {
-            var groupedData = EpcMoList
-                .GroupBy(e => e.MoNo)
-                .Select(g => new MoEpcCountModel
-                {
-                    MoNo = g.Key,
-                    EpcCount = g.Count(),
-                    MoNoSelectList = GetAvailableMoNumbers(g.Key) // Lấy danh sách MO hợp lệ
-                })
-                .ToList();
-
-            MoEpcCounts.Clear();
-            foreach (var item in groupedData)
-            {
-                MoEpcCounts.Add(item);
-            }
-        }
-
-
-
-
-        private List<string> GetAvailableMoNumbers(string moNo)
-        {
-            List<string> moNumbers = new List<string>();
-
-            using (SqlConnection conn = new SqlConnection(_connectionString))
-            {
-                conn.Open();
-                string query = @"
-                SELECT DISTINCT dr.mo_no  
-                    FROM dv_rfidmatchmst dr
-                    WHERE dr.mo_no <> @MoNo 
-
-                    AND EXISTS (
-                        SELECT 1  
-                        FROM dv_rfidmatchmst sub
-                        WHERE sub.mo_no = @MoNo
-                        AND sub.mat_code = dr.mat_code
-                        AND sub.shoestyle_codefactory = dr.shoestyle_codefactory
-                    );";
-
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
-                    cmd.Parameters.AddWithValue("@MoNo", moNo);
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            moNumbers.Add(reader.GetString(0));
-                        }
-                    }
-                }
-            }
-
-            return moNumbers;
-        }
-
-
+  
 
         public async Task ClearList()
         {
@@ -252,9 +114,6 @@ namespace dapdon.ViewModels
             if (response.IsSuccessStatusCode)
             {
                 EpcMoList.Clear();  // Xóa danh sách EPC trên UI
-                MoEpcCounts.Clear();
-                EpcCount = 0;
-                MoNoList.Clear();
             }
         }
 
