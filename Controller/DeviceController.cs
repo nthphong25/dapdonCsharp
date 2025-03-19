@@ -22,17 +22,13 @@ namespace dapdon.Controller
 
                 foreach (var tag in data.Data.TagList)
                 {
-                    if (UniqueEpcList.Add(tag.Epc)) // Nếu EPC chưa có thì thêm vào
-                    {
+                  
                         newEpcList.Add(tag.Epc);
                         OnEpcReceived?.Invoke(tag.Epc);
-                    }
+                    
                 }
 
-                if (newEpcList.Count == 0)
-                {
-                    return Ok(new { message = "Không có EPC mới", count = 0 });
-                }
+           
 
                 return Ok(new { message = "Received unique EPCs", epcList = newEpcList });
             }

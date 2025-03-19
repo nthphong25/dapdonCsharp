@@ -9,6 +9,7 @@ namespace dapdon.Views
     public partial class MainWindow : Window
     {
         private MainContentViewModel _viewModel;
+        private List<string> _epcList = new List<string>(); // Lưu danh sách EPC từ API
 
         public MainWindow()
         {
@@ -18,17 +19,19 @@ namespace dapdon.Views
 
             DeviceController.OnEpcReceived += epc =>
             {
-                Dispatcher.Invoke(() => _viewModel.LoadMoNoByEpc(epc));
+                Dispatcher.Invoke(() =>
+                {
+                    _epcList.Add(epc); // Thêm EPC vào danh sách
+                    _viewModel.LoadMoSummary(_epcList); // Load danh sách EPC
+                });
             };
         }
 
-        private void ClearButton_Click(object sender, RoutedEventArgs e)
+        private void BtnRefresh_Click(object sender, RoutedEventArgs e)
         {
-            _viewModel.ClearList();
-        }
-        public List<string> GetEpclist()
-        {
-            return _viewModel.EpcMoList.Select(item => item.EPC).ToList();
+            _epcList.Clear();  // Xóa danh sách EPC khi refresh
+         
+            _viewModel.MoSummaryList.Clear();
         }
     }
 }

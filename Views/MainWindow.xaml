@@ -6,132 +6,54 @@
     Width="1200"
     Height="700">
     <Grid>
-        <StackPanel>
-            <StackPanel Margin="5" Orientation="Horizontal">
-                <Button
-                    Width="100"
-                    Height="60"
-                    Margin="5"
-                    HorizontalAlignment="Left"
-                    HorizontalContentAlignment="Center"
-                    VerticalContentAlignment="Center"
-                    Click="ClearButton_Click"
-                    Content="Clear List">
-                    <Button.Style>
-                        <Style TargetType="Button">
-                            <Setter Property="Foreground" Value="White" />
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border
-                                            Padding="1"
-                                            Background="#f44336"
-                                            BorderBrush="#f44336"
-                                            BorderThickness="2"
-                                            CornerRadius="3">
-                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                        </Border>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </Button.Style>
-                </Button>
-               
-            </StackPanel>
-            <TextBlock
-                Margin="10"
-                HorizontalAlignment="Left"
-                FontSize="25"
-                FontWeight="Bold"
-                Foreground="Black">
-                <Run Text="EPC Scanned: " />
-                <!--  Phần cố định  -->
-                <Run />
-                <!--  Phần động  -->
-            </TextBlock>
-            <DataGrid
-                Height="550"
-                Margin="5"
-                HorizontalAlignment="Stretch"
-                AutoGenerateColumns="False"
-                ColumnWidth="*"
-                FontSize="16"
-                FrozenColumnCount="4"
-                ItemsSource="{Binding EpcMoList}">
-                <!--  Tự động điều chỉnh độ rộng cột  -->
-                <DataGrid.Columns>
-                    <DataGridTextColumn
-                        Width="*"
-                        Binding="{Binding EPC}"
-                        Header="EPC">
-                        <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="HorizontalAlignment" Value="Center" />
-                                <Setter Property="VerticalAlignment" Value="Center" />
-                                <Setter Property="TextAlignment" Value="Center" />
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                    <DataGridTextColumn Binding="{Binding MoNo}" Header="MONO">
-                        <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="HorizontalAlignment" Value="Center" />
-                                <Setter Property="VerticalAlignment" Value="Center" />
-                                <Setter Property="TextAlignment" Value="Center" />
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                    <DataGridTextColumn
-                        Width="*"
-                        Binding="{Binding MatCode}"
-                        Header="MatCode">
-                        <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="HorizontalAlignment" Value="Left" />
-                                <!--  Căn trái  -->
-                                <Setter Property="VerticalAlignment" Value="Center" />
-                                <Setter Property="TextAlignment" Value="Left" />
-                                <!--  Đảm bảo căn trái  -->
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                    <DataGridTextColumn
-                        Width="*"
-                        Binding="{Binding MatColor}"
-                        Header="Color">
-                        <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="HorizontalAlignment" Value="Left" />
-                                <!--  Căn trái  -->
-                                <Setter Property="VerticalAlignment" Value="Center" />
-                                <Setter Property="TextAlignment" Value="Left" />
-                                <!--  Đảm bảo căn trái  -->
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                    <DataGridTextColumn
-                        Width="*"
-                        Binding="{Binding ShoeStyle}"
-                        Header="Style">
-                        <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="HorizontalAlignment" Value="Center" />
-                                <Setter Property="VerticalAlignment" Value="Center" />
-                                <Setter Property="TextAlignment" Value="Center" />
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                </DataGrid.Columns>
-                <!--  Tăng cỡ chữ và căn giữa tiêu đề  -->
-                <DataGrid.Resources>
-                    <Style TargetType="DataGridColumnHeader">
-                        <Setter Property="FontSize" Value="18" />
-                        <Setter Property="FontWeight" Value="Bold" />
-                        <Setter Property="HorizontalContentAlignment" Value="Center" />
-                    </Style>
-                </DataGrid.Resources>
-            </DataGrid>
-        </StackPanel>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!--  Nút Refresh  -->
+        <Button
+            Width="100"
+            Margin="10"
+            HorizontalAlignment="Right"
+            Click="BtnRefresh_Click"
+            Content="Refresh" />
+
+
+
+        <!--  Bảng hiển thị tổng hợp theo MO  -->
+        <DataGrid
+            Grid.Row="1"
+            Margin="10"
+            AutoGenerateColumns="False"
+            HeadersVisibility="Column"
+            ItemsSource="{Binding MoSummaryList}">
+            <DataGrid.Columns>
+                <DataGridTextColumn
+                    Width="*"
+                    Binding="{Binding MoNo}"
+                    Header="Mã MO" />
+                <DataGridTextColumn
+                    Width="*"
+                    Binding="{Binding EpcCount}"
+                    Header="Số lượng EPC" />
+
+                <!--  Cột chứa Button  -->
+                <DataGridTemplateColumn Width="Auto" Header="Chi tiết">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button
+                                Padding="5"
+                                Command="{Binding DataContext.ShowEpcDetailsCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                CommandParameter="{Binding}"
+                                Content="Xem EPC" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+            </DataGrid.Columns>
+        </DataGrid>
+
     </Grid>
 </Window>

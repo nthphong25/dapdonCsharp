@@ -5,6 +5,9 @@ using System.Data;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
+using System.Windows;
+using System.Windows.Input;
+using dapdon.Models;
 using Microsoft.Data.SqlClient;
 
 namespace dapdon.ViewModels
@@ -32,9 +35,99 @@ namespace dapdon.ViewModels
                 OnPropertyChanged();
             }
         }
+        private ObservableCollection<MoSummaryModel> _moSummaryList = new ObservableCollection<MoSummaryModel>();
+        public ObservableCollection<MoSummaryModel> MoSummaryList
+        {
+            get { return _moSummaryList; }
+            set
+            {
+                _moSummaryList = value;
+                OnPropertyChanged();
+            }
+        }
+        public ICommand ShowEpcDetailsCommand { get; }
+
+        public MainContentViewModel()
+        {
+            ShowEpcDetailsCommand = new RelayCommand(ShowEpcDetails);
+        }
 
 
         private string _connectionString = "Server=10.30.0.18,1433;Database=DV_DATA_LAKE;User Id=sa;Password=greenland@VN;TrustServerCertificate=True";
+        public void LoadMoSummary(List<string> epcList)
+        {
+            MoSummaryList.Clear();
+
+            if (epcList == null || epcList.Count == 0)
+            {
+                return;
+            }
+
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                try
+                {
+                    conn.Open();
+
+                    string epcParams = string.Join(",", epcList.Select((s, i) => $"@epc{i}"));
+
+                    string query = $@"
+                SELECT a.mo_no, a.EPC_Code
+                FROM dv_rfidmatchmst a
+                WHERE a.EPC_Code IN ({epcParams})";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        for (int i = 0; i < epcList.Count; i++)
+                        {
+                            cmd.Parameters.AddWithValue($"@epc{i}", epcList[i]);
+                        }
+
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            var moSummaryDict = new Dictionary<string, MoSummaryModel>();
+
+                            while (reader.Read())
+                            {
+                                string moNo = reader["mo_no"]?.ToString() ?? "";
+                                string epcCode = reader["EPC_Code"]?.ToString() ?? "";
+
+                                if (!moSummaryDict.ContainsKey(moNo))
+                                {
+                                    moSummaryDict[moNo] = new MoSummaryModel
+                                    {
+                                        MoNo = moNo,
+                                        EpcList = new List<string>()
+                                    };
+                                }
+
+                                moSummaryDict[moNo].EpcList.Add(epcCode);
+                            }
+
+                            foreach (var item in moSummaryDict.Values)
+                            {
+                                item.EpcCount = item.EpcList.Count;
+                                MoSummaryList.Add(item);
+                            }
+
+                            if (!MoSummaryList.Any())
+                            {
+                                MoSummaryList.Add(new MoSummaryModel
+                                {
+                                    MoNo = "Không có dữ liệu",
+                                    EpcCount = 0
+                                });
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Lỗi khi truy vấn database: " + ex.Message);
+                }
+            }
+        }
+
 
         public void LoadMoNoByEpc(string epc)
         {
@@ -106,7 +199,22 @@ namespace dapdon.ViewModels
  
         }
 
-  
+
+        public void ShowEpcDetails(object parameter)
+        {
+            if (parameter is MoSummaryModel moSummary && moSummary.EpcList != null && moSummary.EpcList.Count > 0)
+            {
+                string epcDetails = string.Join("\n", moSummary.EpcList); // mảng epc của mono đó.
+
+
+                MessageBox.Show($"Danh sách EPC cho MO {moSummary.MoNo}:\n{epcDetails}", "Chi tiết EPC");
+            }
+            else
+            {
+                MessageBox.Show($"Không có EPC nào cho MO {((MoSummaryModel)parameter)?.MoNo}.", "Chi tiết EPC");
+            }
+        }
+
 
         public async Task ClearList()
         {
