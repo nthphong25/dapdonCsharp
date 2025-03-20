@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using dapdon.Models;
+using dapdon.Views;
 using Microsoft.Data.SqlClient;
 
 namespace dapdon.ViewModels
@@ -72,7 +73,7 @@ namespace dapdon.ViewModels
                     string epcParams = string.Join(",", epcList.Select((s, i) => $"@epc{i}"));
 
                     string query = $@"
-                SELECT a.mo_no, a.EPC_Code
+                SELECT a.mo_no, a.EPC_Code, a.shoestyle_codefactory, a.mat_code
                 FROM dv_rfidmatchmst a
                 WHERE a.EPC_Code IN ({epcParams})";
 
@@ -91,12 +92,15 @@ namespace dapdon.ViewModels
                             {
                                 string moNo = reader["mo_no"]?.ToString() ?? "";
                                 string epcCode = reader["EPC_Code"]?.ToString() ?? "";
-
+                                string shoestyle_codefactory = reader["shoestyle_codefactory"]?.ToString() ?? "";
+                                string matCode = reader["mat_code"]?.ToString() ?? "";
                                 if (!moSummaryDict.ContainsKey(moNo))
                                 {
                                     moSummaryDict[moNo] = new MoSummaryModel
                                     {
                                         MoNo = moNo,
+                                        shoestyle_codefactory = shoestyle_codefactory,
+                                        mat_code = matCode,
                                         EpcList = new List<string>()
                                     };
                                 }
@@ -204,16 +208,36 @@ namespace dapdon.ViewModels
         {
             if (parameter is MoSummaryModel moSummary && moSummary.EpcList != null && moSummary.EpcList.Count > 0)
             {
-                string epcDetails = string.Join("\n", moSummary.EpcList); // mảng epc của mono đó.
+                string epcDetails = string.Join(",", moSummary.EpcList);
+                var viewModel = new MoSelectionViewModel(moSummary.MoNo, epcDetails, LoadDataGrid);
 
+                // ❌ Không mở modal nếu danh sách rỗng
+                if (!viewModel.HasMoNoList)
+                {
+                    return;
+                }
 
-                MessageBox.Show($"Danh sách EPC cho MO {moSummary.MoNo}:\n{epcDetails}", "Chi tiết EPC");
+                MoSelectionView modal = new MoSelectionView();
+                modal.DataContext = viewModel;
+                modal.ShowDialog();
             }
             else
             {
-                MessageBox.Show($"Không có EPC nào cho MO {((MoSummaryModel)parameter)?.MoNo}.", "Chi tiết EPC");
+                MessageBox.Show($"Không có EPC nào cho MO {(parameter as MoSummaryModel)?.MoNo}", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
+
+
+        // Hàm reload DataGrid sau khi chuyển EPC thành công
+        private void LoadDataGrid()
+        {
+            //LoadData(); // Gọi lại hàm load dữ liệu của DataGrid
+            MessageBox.Show("Đã load lại DataGrid!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+
+
+
 
 
         public async Task ClearList()

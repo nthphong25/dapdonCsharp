@@ -18,7 +18,7 @@ namespace dapdon.Views
     /// <summary>
     /// Interaction logic for MoSelectionView.xaml
     /// </summary>
-    public partial class MoSelectionView : Page
+    public partial class MoSelectionView : Window
     {
         public MoSelectionView()
         {

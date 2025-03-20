@@ -4,7 +4,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="EPC Viewer"
     Width="1200"
-    Height="700">
+    Height="700"
+    
+    
+    >
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -15,18 +19,40 @@
         <!--  Nút Refresh  -->
         <Button
             Width="100"
-            Margin="10"
+            Height="40"
+            Margin="20"
             HorizontalAlignment="Right"
             Click="BtnRefresh_Click"
-            Content="Refresh" />
-
+            Content="Clear"
+            Background="Red"
+            >
+            <Button.Style>
+                <Style TargetType="Button">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}"
+                 BorderBrush="{TemplateBinding BorderBrush}"
+                 BorderThickness="1"
+                 CornerRadius="4">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="Cursor" Value="Hand"/>
+                   
+                </Style>
+            </Button.Style>
+        </Button>
+       
 
 
         <!--  Bảng hiển thị tổng hợp theo MO  -->
         <DataGrid
+            AutoGenerateColumns="False" CanUserAddRows="False"
             Grid.Row="1"
             Margin="10"
-            AutoGenerateColumns="False"
             HeadersVisibility="Column"
             ItemsSource="{Binding MoSummaryList}">
             <DataGrid.Columns>
@@ -35,9 +61,18 @@
                     Binding="{Binding MoNo}"
                     Header="Mã MO" />
                 <DataGridTextColumn
+             Width="*"
+             Binding="{Binding shoestyle_codefactory}"
+             Header="Số lượng EPC" />
+                <DataGridTextColumn
+Width="*"
+Binding="{Binding mat_code}"
+Header="Số lượng EPC" />
+                <DataGridTextColumn
                     Width="*"
                     Binding="{Binding EpcCount}"
                     Header="Số lượng EPC" />
+                
 
                 <!--  Cột chứa Button  -->
                 <DataGridTemplateColumn Width="Auto" Header="Chi tiết">

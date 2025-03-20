@@ -10,6 +10,8 @@ namespace dapdon.Models
     {
         public string MoNo { get; set; }
         public int EpcCount { get; set; }
+        public string shoestyle_codefactory { get; set; }
+        public string mat_code { get; set; }
         public List<string> EpcList { get; set; } = new List<string>();
     }
 
