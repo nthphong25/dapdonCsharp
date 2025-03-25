@@ -23,7 +23,7 @@ namespace dapdon.Controller
                 foreach (var tag in data.Data.TagList)
                 {
                   
-                        newEpcList.Add(tag.Epc);
+                        newEpcList.Add(tag.Epc); 
                         OnEpcReceived?.Invoke(tag.Epc);
                     
                 }

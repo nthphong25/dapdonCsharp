@@ -12,7 +12,10 @@ namespace dapdon.ViewModels
     {
         private string _selectedMoNo;
         private string _originalMoNo;
+        private string _searchText;
+
         public bool HasMoNoList { get; private set; } = false;
+        public ObservableCollection<string> FilteredMoNoList { get; set; } = new ObservableCollection<string>();
 
         public ObservableCollection<string> MoNoList { get; set; } = new ObservableCollection<string>();
 
@@ -23,6 +26,24 @@ namespace dapdon.ViewModels
             {
                 _selectedMoNo = value;
                 OnPropertyChanged();
+            }
+        }
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                _searchText = value;
+                OnPropertyChanged();
+                FilterMoNoList(); // 🔎 Gọi hàm lọc dữ liệu khi thay đổi giá trị
+            }
+        }
+        public void FilterMoNoList()
+        {
+            FilteredMoNoList.Clear();
+            foreach (var mo in MoNoList.Where(m => m.Contains(SearchText, StringComparison.OrdinalIgnoreCase)))
+            {
+                FilteredMoNoList.Add(mo);
             }
         }
 

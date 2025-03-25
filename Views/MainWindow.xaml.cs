@@ -33,5 +33,10 @@ namespace dapdon.Views
          
             _viewModel.MoSummaryList.Clear();
         }
+
+        private void DataGrid_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using dapdon.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,5 +25,13 @@ namespace dapdon.Views
         {
             InitializeComponent();
         }
+        private void ComboBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (DataContext is MoSelectionViewModel vm)
+            {
+                vm.FilterMoNoList(); // Gọi hàm lọc danh sách
+            }
+        }
+
     }
 }
